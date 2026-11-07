@@ -1,0 +1,49 @@
+spring:
+  application:
+    name: cv-manager
+
+  # In locale Spring Boot avvia docker-compose.yml (Postgres su localhost:5433)
+  # e sovrascrive queste credenziali; in produzione arrivano da variabili d'ambiente.
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/cvmanager}
+    username: ${DB_USER:cvmanager}
+    password: ${DB_PASSWORD:}
+  docker:
+    compose:
+      file: ../docker-compose.yml
+      lifecycle-management: start-only
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+
+  # Le tabelle di Spring Session sono create da Flyway (V2)
+  session:
+    jdbc:
+      initialize-schema: never
+
+  mvc:
+    problemdetails:
+      enabled: true
+
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
+
+server:
+  servlet:
+    session:
+      timeout: 30m
+
+app:
+  session:
+    # true in produzione (HTTPS); attributi del cookie in SessionConfig
+    cookie-secure: ${COOKIE_SECURE:false}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
