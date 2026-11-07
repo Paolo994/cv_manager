@@ -11,7 +11,7 @@
 
     <artifactId>frontend</artifactId>
     <name>CV Manager - Frontend</name>
-    <description>SPA React: la build finisce in /static dentro un JAR usato dal backend</description>
+    <description>React SPA: the build is packaged under /static in a JAR used by the backend</description>
 
     <build>
         <resources>

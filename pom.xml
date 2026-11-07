@@ -15,6 +15,7 @@
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>CV Manager</name>
+    <description>Multi-agent web app powered by Claude to manage CVs, review them and prepare tailored job applications</description>
 
     <modules>
         <module>frontend</module>

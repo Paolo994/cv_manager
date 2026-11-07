@@ -11,6 +11,7 @@
 
     <artifactId>backend</artifactId>
     <name>CV Manager - Backend</name>
+    <description>Spring Boot backend (BFF): REST API, security, AI agents and orchestration; serves the SPA</description>
 
     <dependencies>
         <!-- SPA compilata (static/**) -->
