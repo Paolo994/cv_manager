@@ -40,9 +40,13 @@ export function HomePage() {
           <h2>Preferenze</h2>
           <p className="muted">Ruoli, città, modalità di lavoro e RAL per la ricerca delle offerte.</p>
         </Link>
+        <Link to="/jobs" className="card card-link">
+          <h2>Annunci</h2>
+          <p className="muted">Incolla un annuncio e ottieni lettera e CV adattati, verificati dal Critic.</p>
+        </Link>
         <article className="card card-disabled">
-          <h2>Offerte e candidature</h2>
-          <p className="muted">In arrivo nelle prossime fasi.</p>
+          <h2>Ricerca offerte</h2>
+          <p className="muted">In arrivo nella prossima fase.</p>
         </article>
       </section>
     </>

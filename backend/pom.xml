@@ -77,6 +77,13 @@
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-parser-microsoft-module</artifactId>
         </dependency>
+
+        <!-- Generazione DOCX: Tika esclude gli schemi OOXML che servono a POI per scrivere i documenti -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml-lite</artifactId>
+            <version>${poi.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-docker-compose</artifactId>

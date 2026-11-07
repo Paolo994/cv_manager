@@ -90,11 +90,91 @@ export type JobPreferences = {
   willingToRelocate: boolean;
 };
 
+export type Language = 'IT' | 'EN';
+
+export type JobAnalysis = {
+  title: string;
+  company: string;
+  location: string;
+  workMode: 'REMOTE' | 'HYBRID' | 'ON_SITE' | 'UNSPECIFIED';
+  seniority: string;
+  language: Language;
+  mustHave: string[];
+  niceToHave: string[];
+  responsibilities: string[];
+  keywords: string[];
+  salary: string;
+  summary: string;
+};
+
+export type JobPosting = {
+  id: string;
+  source: string;
+  url: string | null;
+  description: string;
+  analysis: JobAnalysis | null;
+  createdAt: string;
+};
+
+export type CoverLetter = {
+  subject: string;
+  salutation: string;
+  paragraphs: string[];
+  closing: string;
+};
+
+export type TailoredCv = {
+  fullName: string;
+  headline: string;
+  summary: string;
+  experiences: { role: string; company: string; location: string; period: string; bullets: string[] }[];
+  education: { degree: string; institution: string; period: string; details: string }[];
+  skills: { category: string; items: string[] }[];
+  languages: string[];
+  certifications: string[];
+  changes: string[];
+};
+
+export type DocumentType = 'COVER_LETTER' | 'TAILORED_CV';
+
+export type CriticIssue = {
+  document: DocumentType;
+  type: 'UNSUPPORTED_CLAIM' | 'INACCURATE' | 'STYLE';
+  excerpt: string;
+  problem: string;
+  suggestion: string;
+};
+
+type DocumentBase = {
+  id: string;
+  jobId: string;
+  version: number;
+  origin: 'AI' | 'USER';
+  language: Language;
+  runId: string | null;
+  reviewNotes: CriticIssue[];
+  createdAt: string;
+};
+
+export type GeneratedDocument =
+  | (DocumentBase & { type: 'COVER_LETTER'; content: CoverLetter })
+  | (DocumentBase & { type: 'TAILORED_CV'; content: TailoredCv });
+
+export type Tone = 'FORMAL' | 'PROFESSIONAL' | 'DIRECT';
+
+export type ContactInfo = {
+  email: string;
+  phone: string;
+  linkedin: string;
+  website: string;
+  city: string;
+};
+
 export type RunStatus = 'RUNNING' | 'SUCCEEDED' | 'FAILED';
 
 export type RunView = {
   id: string;
-  workflow: 'IMPORT_CV' | 'REVIEW_CV';
+  workflow: 'IMPORT_CV' | 'REVIEW_CV' | 'ANALYZE_JOB' | 'PREPARE_APPLICATION';
   status: RunStatus;
   error: string | null;
   output: Record<string, unknown> | null;
@@ -104,6 +184,7 @@ export type RunView = {
   finishedAt: string | null;
   steps: {
     agent: string;
+    attempt: number;
     model: string | null;
     status: RunStatus;
     error: string | null;

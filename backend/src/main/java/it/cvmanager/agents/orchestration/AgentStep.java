@@ -26,6 +26,10 @@ class AgentStep {
     @Column(nullable = false, length = 50)
     private String agent;
 
+    /** 1 = prima esecuzione, 2+ = revisione (es. richiesta dal Critic). */
+    @Column(nullable = false)
+    private int attempt;
+
     @Column(length = 100)
     private String model;
 
@@ -55,10 +59,11 @@ class AgentStep {
         // JPA
     }
 
-    AgentStep(UUID runId, String agent) {
+    AgentStep(UUID runId, String agent, int attempt) {
         this.id = UUID.randomUUID();
         this.runId = runId;
         this.agent = agent;
+        this.attempt = attempt;
         this.status = RunStatus.RUNNING;
         this.startedAt = Instant.now();
     }
@@ -84,6 +89,10 @@ class AgentStep {
 
     String getAgent() {
         return agent;
+    }
+
+    int getAttempt() {
+        return attempt;
     }
 
     String getModel() {

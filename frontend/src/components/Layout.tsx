@@ -6,6 +6,7 @@ import { CURRENT_USER_KEY, useCurrentUser } from '../auth/useCurrentUser';
 const NAV = [
   { to: '/', label: 'Home', end: true },
   { to: '/cv', label: 'CV', end: false },
+  { to: '/jobs', label: 'Annunci', end: false },
   { to: '/profile', label: 'Profilo', end: false },
   { to: '/preferences', label: 'Preferenze', end: false },
 ];

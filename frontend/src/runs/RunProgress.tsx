@@ -5,6 +5,10 @@ import { useRun } from './useRun';
 const AGENT_LABELS: Record<string, string> = {
   'cv-parser': 'CV Parser · legge il CV ed estrae il profilo',
   'cv-reviewer': 'CV Reviewer · valuta il CV',
+  'job-analyzer': "Job Analyzer · estrae requisiti e parole chiave dall'annuncio",
+  'cv-tailor': "CV Tailor · adatta il CV all'annuncio",
+  'cover-letter-writer': 'Cover Letter Writer · scrive la lettera',
+  critic: 'Critic · verifica che non ci siano fatti inventati',
 };
 
 const STATUS_LABELS = { RUNNING: 'in corso', SUCCEEDED: 'completato', FAILED: 'errore' } as const;
@@ -40,7 +44,11 @@ export function RunProgress({ runId, onFinished }: Props) {
         {run.steps.map((step, i) => (
           <li key={i} className={`run-step step-${step.status.toLowerCase()}`}>
             <span className="step-dot" aria-hidden="true" />
-            <span className="step-name">{AGENT_LABELS[step.agent] ?? step.agent}</span>
+            <span className="step-name">
+              {AGENT_LABELS[step.agent] ?? step.agent}
+              {step.attempt > 1 && step.agent !== 'critic' && <span className="badge badge-medium">revisione {step.attempt - 1}</span>}
+              {step.attempt > 1 && step.agent === 'critic' && <span className="badge badge-low">nuova verifica</span>}
+            </span>
             <span className="step-meta">
               {STATUS_LABELS[step.status]}
               {step.status === 'SUCCEEDED' && ` · ${step.inputTokens + step.outputTokens} token`}

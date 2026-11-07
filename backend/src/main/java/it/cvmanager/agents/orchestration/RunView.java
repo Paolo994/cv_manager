@@ -22,6 +22,7 @@ public record RunView(
 
     public record StepView(
             String agent,
+            int attempt,
             String model,
             RunStatus status,
             String error,

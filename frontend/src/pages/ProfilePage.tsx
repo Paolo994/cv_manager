@@ -5,6 +5,7 @@ import { fetchProfile, saveProfile } from '../api/cv';
 import { ApiError } from '../api/client';
 import type { CandidateProfile, Education, Experience, Seniority } from '../api/types';
 import { CommaField, LinesField } from '../components/fields';
+import { ContactPanel } from '../components/ContactPanel';
 import { formatDate, SENIORITY_LABELS } from '../labels';
 
 const EMPTY_EXPERIENCE: Experience = {
@@ -262,6 +263,10 @@ export function ProfilePage() {
           </button>
         </div>
       </form>
+
+      <div className="spaced-top">
+        <ContactPanel />
+      </div>
     </>
   );
 }

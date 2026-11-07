@@ -27,6 +27,8 @@
         <frontend-maven-plugin.version>2.0.2</frontend-maven-plugin.version>
         <spring-ai.version>2.0.2</spring-ai.version>
         <tika.version>4.2.0</tika.version>
+        <!-- allineata alla versione di POI usata da Tika -->
+        <poi.version>5.5.1</poi.version>
     </properties>
 
     <dependencyManagement>

@@ -8,6 +8,8 @@ import { CvPage } from './pages/CvPage';
 import { CvReviewPage } from './pages/CvReviewPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { PreferencesPage } from './pages/PreferencesPage';
+import { JobsPage } from './pages/JobsPage';
+import { JobDetailPage } from './pages/JobDetailPage';
 
 export default function App() {
   return (
@@ -26,6 +28,8 @@ export default function App() {
         <Route path="cv/:id/review" element={<CvReviewPage />} />
         <Route path="profile" element={<ProfilePage />} />
         <Route path="preferences" element={<PreferencesPage />} />
+        <Route path="jobs" element={<JobsPage />} />
+        <Route path="jobs/:id" element={<JobDetailPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

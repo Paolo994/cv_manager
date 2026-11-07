@@ -18,6 +18,8 @@ import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
@@ -84,8 +86,8 @@ public class AgentRunService {
         }
     }
 
-    <T> T executeStep(RunContext context, String agentName, Supplier<LlmResult<T>> agentCall) {
-        UUID stepId = tx.execute(status -> steps.save(new AgentStep(context.runId(), agentName)).getId());
+    <T> T executeStep(RunContext context, String agentName, int attempt, Supplier<LlmResult<T>> agentCall) {
+        UUID stepId = tx.execute(status -> steps.save(new AgentStep(context.runId(), agentName, attempt)).getId());
         publish(context.runId());
         try {
             LlmResult<T> result = agentCall.get();
@@ -93,7 +95,8 @@ public class AgentRunService {
             tx.executeWithoutResult(status -> {
                 steps.findById(stepId).orElseThrow()
                         .succeed(result.model(), outputJson, result.inputTokens(), result.outputTokens());
-                runs.findById(context.runId()).orElseThrow().addTokens(result.inputTokens(), result.outputTokens());
+                // lock sulla riga del run: con agenti in parallelo i token non si sovrascrivono
+                runs.findByIdForUpdate(context.runId()).orElseThrow().addTokens(result.inputTokens(), result.outputTokens());
             });
             publish(context.runId());
             return result.value();
@@ -101,6 +104,23 @@ public class AgentRunService {
             String message = userMessage(e);
             tx.executeWithoutResult(status -> steps.findById(stepId).orElseThrow().fail(message));
             publish(context.runId());
+            throw e;
+        }
+    }
+
+    /** Esegue due rami in parallelo su virtual thread; un ramo null restituisce null. */
+    <A, B> RunContext.Both<A, B> parallel(Supplier<A> first, Supplier<B> second) {
+        CompletableFuture<A> a = first == null ? CompletableFuture.completedFuture(null) : CompletableFuture.supplyAsync(first, executor);
+        CompletableFuture<B> b = second == null ? CompletableFuture.completedFuture(null) : CompletableFuture.supplyAsync(second, executor);
+        try {
+            CompletableFuture.allOf(a, b).join();
+            return new RunContext.Both<>(a.join(), b.join());
+        } catch (CompletionException e) {
+            a.cancel(true);
+            b.cancel(true);
+            if (e.getCause() instanceof RuntimeException cause) {
+                throw cause;
+            }
             throw e;
         }
     }
@@ -119,7 +139,7 @@ public class AgentRunService {
 
     private RunView toView(AgentRun run) {
         List<RunView.StepView> stepViews = steps.findByRunIdOrderByStartedAt(run.getId()).stream()
-                .map(s -> new RunView.StepView(s.getAgent(), s.getModel(), s.getStatus(), s.getError(),
+                .map(s -> new RunView.StepView(s.getAgent(), s.getAttempt(), s.getModel(), s.getStatus(), s.getError(),
                         s.getInputTokens(), s.getOutputTokens(), s.getStartedAt(), s.getFinishedAt()))
                 .toList();
         JsonNode output = run.getOutput() == null ? null : jsonMapper.readTree(run.getOutput());
