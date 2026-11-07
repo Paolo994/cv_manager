@@ -1,51 +1,50 @@
-import { useNavigate } from 'react-router';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { logout } from '../api/auth';
-import { CURRENT_USER_KEY, useCurrentUser } from '../auth/useCurrentUser';
-
-const UPCOMING = [
-  { title: 'I miei CV', text: 'Carica un CV e lascia che il CV Parser estragga il tuo profilo.' },
-  { title: 'Valutazione CV', text: 'Punteggio per criterio e suggerimenti puntuali.' },
-  { title: 'Offerte di lavoro', text: 'Offerte coerenti con profilo e preferenze, con punteggio.' },
-  { title: 'Lettere e candidature', text: 'Lettera e CV adattati per ogni offerta, e tracker delle candidature.' },
-];
+import { Link } from 'react-router';
+import { useQuery } from '@tanstack/react-query';
+import { fetchProfile, listCvs } from '../api/cv';
+import { useCurrentUser } from '../auth/useCurrentUser';
 
 export function HomePage() {
   const { data: user } = useCurrentUser();
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  const cvs = useQuery({ queryKey: ['cvs'], queryFn: listCvs });
+  const profile = useQuery({ queryKey: ['profile'], queryFn: fetchProfile });
 
-  const logoutMutation = useMutation({
-    mutationFn: logout,
-    onSettled: () => {
-      queryClient.setQueryData(CURRENT_USER_KEY, null);
-      navigate('/login', { replace: true });
-    },
-  });
+  const cvCount = cvs.data?.length ?? 0;
+  const profileText = !profile.data
+    ? 'Ancora nessun profilo: carica un CV.'
+    : profile.data.status === 'CONFIRMED'
+      ? 'Profilo confermato: gli agenti useranno questo.'
+      : 'Bozza da rivedere e confermare.';
 
   return (
-    <div className="layout">
-      <header className="topbar">
-        <strong>CV Manager</strong>
-        <div className="topbar-user">
-          <span className="muted">{user?.email}</span>
-          <button className="secondary" onClick={() => logoutMutation.mutate()} disabled={logoutMutation.isPending}>
-            Esci
-          </button>
-        </div>
-      </header>
-      <main className="content">
-        <h1>Ciao {user?.fullName}</h1>
-        <p className="muted">Queste sezioni arrivano nelle prossime fasi.</p>
-        <section className="grid">
-          {UPCOMING.map((item) => (
-            <article key={item.title} className="card">
-              <h2>{item.title}</h2>
-              <p className="muted">{item.text}</p>
-            </article>
-          ))}
-        </section>
-      </main>
-    </div>
+    <>
+      <h1>Ciao {user?.fullName}</h1>
+      <section className="grid">
+        <Link to="/cv" className="card card-link">
+          <h2>I miei CV</h2>
+          <p className="muted">
+            {cvCount === 0 ? 'Carica il tuo CV in PDF o DOCX.' : `${cvCount} CV caricati. Valutali o estrai il profilo.`}
+          </p>
+        </Link>
+        <Link to="/profile" className="card card-link">
+          <h2>
+            Profilo{' '}
+            {profile.data && (
+              <span className={`badge ${profile.data.status === 'CONFIRMED' ? 'badge-good' : 'badge-warning'}`}>
+                {profile.data.status === 'CONFIRMED' ? 'Confermato' : 'Bozza'}
+              </span>
+            )}
+          </h2>
+          <p className="muted">{profileText}</p>
+        </Link>
+        <Link to="/preferences" className="card card-link">
+          <h2>Preferenze</h2>
+          <p className="muted">Ruoli, città, modalità di lavoro e RAL per la ricerca delle offerte.</p>
+        </Link>
+        <article className="card card-disabled">
+          <h2>Offerte e candidature</h2>
+          <p className="muted">In arrivo nelle prossime fasi.</p>
+        </article>
+      </section>
+    </>
   );
 }

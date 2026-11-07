@@ -31,6 +31,7 @@ type RequestOptions = {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   json?: unknown;
   form?: Record<string, string>;
+  formData?: FormData;
 };
 
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
@@ -43,6 +44,8 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     body = JSON.stringify(options.json);
   } else if (options.form) {
     body = new URLSearchParams(options.form);
+  } else if (options.formData) {
+    body = options.formData; // il browser imposta Content-Type multipart con il boundary
   }
   if (method !== 'GET') {
     headers['X-XSRF-TOKEN'] = await csrfToken();

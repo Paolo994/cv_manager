@@ -1,8 +1,11 @@
 package it.cvmanager.auth;
 
-public class EmailAlreadyUsedException extends RuntimeException {
+import it.cvmanager.shared.web.ApiException;
+import org.springframework.http.HttpStatus;
+
+public class EmailAlreadyUsedException extends ApiException {
 
     public EmailAlreadyUsedException() {
-        super("Esiste già un account con questa email");
+        super(HttpStatus.CONFLICT, "Email già registrata", "Esiste già un account con questa email");
     }
 }

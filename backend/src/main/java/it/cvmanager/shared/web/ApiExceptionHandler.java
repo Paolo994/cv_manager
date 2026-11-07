@@ -1,7 +1,5 @@
 package it.cvmanager.shared.web;
 
-import it.cvmanager.auth.EmailAlreadyUsedException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -10,10 +8,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 class ApiExceptionHandler {
 
-    @ExceptionHandler(EmailAlreadyUsedException.class)
-    ProblemDetail emailAlreadyUsed(EmailAlreadyUsedException e) {
-        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, e.getMessage());
-        problem.setTitle("Email già registrata");
+    @ExceptionHandler(ApiException.class)
+    ProblemDetail apiException(ApiException e) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(e.status(), e.getMessage());
+        problem.setTitle(e.title());
         return problem;
     }
 }

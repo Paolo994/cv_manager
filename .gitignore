@@ -5,6 +5,10 @@ target/
 .env
 *.log
 
+# file caricati dagli utenti (CV): dati personali, mai nel repo
+data/
+backend/data/
+
 # frontend
 frontend/node_modules/
 frontend/dist/

@@ -2,6 +2,17 @@ spring:
   application:
     name: cv-manager
 
+  # Variabili locali (DB_PASSWORD, ANTHROPIC_API_KEY, ...) dal file .env non versionato:
+  # ./.env se l'app parte dalla root, ../.env se parte da backend/ (mvn spring-boot:run)
+  config:
+    import:
+      - optional:file:.env[.properties]
+      - optional:file:../.env[.properties]
+
+  ai:
+    anthropic:
+      api-key: ${ANTHROPIC_API_KEY:}
+
   # In locale Spring Boot avvia docker-compose.yml (Postgres su localhost:5433)
   # e sovrascrive queste credenziali; in produzione arrivano da variabili d'ambiente.
   datasource:
@@ -41,6 +52,16 @@ app:
   session:
     # true in produzione (HTTPS); attributi del cookie in SessionConfig
     cookie-secure: ${COOKIE_SECURE:false}
+  storage:
+    local-dir: ${STORAGE_DIR:./data/uploads}
+  # Modello e limiti per agente: qualità e costi si regolano qui, senza toccare il codice
+  agents:
+    cv-parser:
+      model: claude-sonnet-5-5
+      max-tokens: 8000
+    cv-reviewer:
+      model: claude-sonnet-5-5
+      max-tokens: 6000
 
 management:
   endpoints:

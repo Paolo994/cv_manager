@@ -1,52 +1,23 @@
 package it.cvmanager.auth;
 
-import it.cvmanager.TestcontainersConfiguration;
+import it.cvmanager.AbstractIntegrationTest;
 import jakarta.servlet.http.Cookie;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.session.web.http.SessionRepositoryFilter;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@Import(TestcontainersConfiguration.class)
-class AuthFlowIntegrationTest {
-
-    private static final String PASSWORD = "password-sicura-123";
-
-    @Autowired
-    private WebApplicationContext context;
+class AuthFlowIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private AppUserRepository users;
-
-    private MockMvc mvc;
-
-    @BeforeEach
-    void setUp() {
-        // Filtro di Spring Session prima di Spring Security, come nell'app reale:
-        // la sessione viene salvata su PostgreSQL e restituita nel cookie SESSION.
-        mvc = MockMvcBuilders.webAppContextSetup(context)
-                .addFilters(context.getBean(SessionRepositoryFilter.class))
-                .apply(springSecurity())
-                .build();
-    }
 
     @Test
     void apiRequiresAuthentication() throws Exception {
@@ -116,15 +87,5 @@ class AuthFlowIntegrationTest {
 
         mvc.perform(get("/api/auth/me").cookie(session))
                 .andExpect(status().isUnauthorized());
-    }
-
-    private static String uniqueEmail() {
-        return "utente-" + UUID.randomUUID() + "@example.com";
-    }
-
-    private static String registerJson(String email, String password) {
-        return """
-                {"email": "%s", "password": "%s", "fullName": "Mario Rossi"}
-                """.formatted(email, password);
     }
 }
